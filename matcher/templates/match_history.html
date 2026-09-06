@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Match History | AI Resume Matcher</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f8;
+            color: #1f2937;
+            min-width: 1100px;
+
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            height: 65px;
+            background-color: #172554;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 45px;
+        }
+
+        .navbar h2 {
+            font-size: 22px;
+        }
+
+        .navbar-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 14px;
+        }
+
+        .page-container {
+            width: 1150px;
+            margin: 35px auto;
+            flex: 1;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #111827;
+            margin-bottom: 7px;
+        }
+
+        .page-header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .new-analysis {
+            text-decoration: none;
+            background-color: #1d4ed8;
+            color: white;
+            padding: 12px 18px;
+            font-size: 14px;
+        }
+
+        .history-card {
+            background-color: white;
+            border: 1px solid #d1d5db;
+            padding: 25px;
+        }
+
+        .history-card h2 {
+            color: #172554;
+            font-size: 19px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #374151;
+            text-align: left;
+            font-size: 13px;
+            padding: 13px;
+        }
+
+        td {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 14px 13px;
+            font-size: 14px;
+        }
+
+        .score {
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        .resume-name {
+            color: #374151;
+        }
+
+        .date {
+            color: #6b7280;
+        }
+
+        .empty-state {
+            padding: 45px 20px;
+            text-align: center;
+        }
+
+        .empty-state h3 {
+            color: #172554;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state a {
+            text-decoration: none;
+            background-color: #1d4ed8;
+            color: white;
+            padding: 11px 18px;
+            font-size: 14px;
+        }
+
+        .footer {
+            background-color: #172554;
+            color: #dbeafe;
+            text-align: center;
+            padding: 18px;
+            font-size: 13px;
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div class="navbar">
+
+        <h2>AI Resume Matcher</h2>
+
+        <div class="navbar-links">
+
+            <a href="{% url 'dashboard' %}">
+                Dashboard
+            </a>
+
+            <a href="{% url 'upload_resume' %}">
+                Upload Resume
+            </a>
+
+            <a href="{% url 'create_job' %}">
+                Add Job
+            </a>
+
+            <a href="{% url 'match_resume_job' %}">
+                Matcher
+            </a>
+
+            <a href="{% url 'match_history' %}">
+                History
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="page-container">
+
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>Match History</h1>
+
+                <p>
+                    View all of your previous resume and
+                    job analyses.
+                </p>
+
+            </div>
+
+
+            <a href="{% url 'match_resume_job' %}" class="new-analysis">
+                New Analysis
+            </a>
+
+        </div>
+
+
+        <div class="history-card">
+
+            <h2>Previous Analyses</h2>
+
+
+            {% if matches %}
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Resume</th>
+
+                        <th>Job Role</th>
+
+                        <th>Company</th>
+
+                        <th>Match Score</th>
+
+                        <th>Date</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for match in matches %}
+
+                    <tr>
+
+                        <td class="resume-name">
+
+                            {{ match.resume.file.name }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ match.job.title }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if match.job.company %}
+
+                            {{ match.job.company }}
+
+                            {% else %}
+
+                            -
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="score">
+
+                            {{ match.match_score }}%
+
+                        </td>
+
+
+                        <td class="date">
+
+                            {{ match.created_at|date:"d M Y, h:i A" }}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+
+            {% else %}
+
+
+            <div class="empty-state">
+
+                <h3>No match history yet</h3>
+
+                <p>
+                    Once you analyze a resume against a job
+                    description, the result will appear here.
+                </p>
+
+                <a href="{% url 'match_resume_job' %}">
+                    Start First Analysis
+                </a>
+
+            </div>
+
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+
+    <div class="footer">
+
+        AI Resume Matcher — Django REST Framework + Gemini AI
+
+    </div>
+
+
+</body>
+
+</html>

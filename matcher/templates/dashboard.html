@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Dashboard | AI Resume Matcher</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f8;
+            color: #1f2937;
+            min-width: 1100px;
+
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            height: 65px;
+            background-color: #172554;
+            color: white;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 0 45px;
+        }
+
+        .navbar h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .navbar-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 14px;
+        }
+
+        .page-container {
+            width: 1150px;
+            margin: 35px auto;
+            flex: 1;
+        }
+
+        .page-title {
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .page-title p {
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border: 1px solid #d1d5db;
+            padding: 26px;
+        }
+
+        .stat-card p {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card h2 {
+            font-size: 34px;
+            color: #172554;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 22px;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid #d1d5db;
+            padding: 25px;
+        }
+
+        .card h2 {
+            color: #172554;
+            font-size: 19px;
+            margin-bottom: 20px;
+        }
+
+        .match-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .match-table th {
+            text-align: left;
+            padding: 12px;
+            background-color: #f1f5f9;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .match-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        .score {
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        .quick-action {
+            display: block;
+            text-decoration: none;
+            background-color: #172554;
+            color: white;
+            padding: 13px 15px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .quick-action.primary {
+            background-color: #1d4ed8;
+        }
+
+        .empty-message {
+            color: #6b7280;
+            font-size: 14px;
+            padding: 10px 0;
+        }
+
+        .footer {
+            background-color: #172554;
+            color: #dbeafe;
+            text-align: center;
+            padding: 18px;
+            font-size: 13px;
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div class="navbar">
+        <h2>AI Resume Matcher</h2>
+        <div class="navbar-links">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'upload_resume' %}">Upload Resume</a>
+            <a href="{% url 'create_job' %}">Add Job</a>
+            <a href="{% url 'match_resume_job' %}">Matcher</a>
+            <a href="{% url 'match_history' %}">History</a>
+
+        </div>
+
+    </div>
+
+
+    <div class="page-container">
+
+        <div class="page-title">
+            <h1>Dashboard</h1>
+            <p>Manage your resumes, job descriptions and AI-powered match analyses.</p>
+
+        </div>
+
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <p>Total Resumes</p>
+                <h2>{{ total_resumes }}</h2>
+            </div>
+
+
+            <div class="stat-card">
+                <p>Total Job Descriptions</p>
+                <h2>{{ total_jobs }}</h2>
+            </div>
+
+
+            <div class="stat-card">
+                <p>Total Analyses</p>
+                <h2>{{ total_matches }}</h2>
+            </div>
+        </div>
+
+
+        <div class="dashboard-grid">
+
+            <div class="card">
+                <h2>Recent Match Results</h2>
+                {% if recent_matches %}
+                <table class="match-table">
+                    <thead>
+                        <tr>
+                            <th>Job</th>
+                            <th>Company</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for match in recent_matches %}
+                        <tr>
+                            <td>{{ match.job.title }}</td>
+                            <td>
+                                {% if match.job.company %}
+                                {{ match.job.company }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="score">{{ match.match_score }}%</td>
+                            <td>{{ match.created_at|date:"d M Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+                {% else %}
+                <p class="empty-message">No analyses have been performed yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <a href="{% url 'match_resume_job' %}" class="quick-action primary">Analyze Resume</a>
+                <a href="{% url 'upload_resume' %}" class="quick-action">Upload Resume</a>
+                <a href="{% url 'create_job' %}" class="quick-action">Add Job Description</a>
+                <a href="{% url 'match_history' %}" class="quick-action">View Match History</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer">AI Resume Matcher — Django REST Framework + Gemini AI</div>
+</body>
+
+</html>
